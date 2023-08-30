@@ -1,6 +1,6 @@
 
 
-## Workflow to extract sequences from the chip seq data and BLAST against reference (Sang) genome data
+## Workflow to extract sequences from the 7kchip data and BLAST against reference (Sang) genome data
 
 ### Pars Raw Arrayseq data 
 ./1.0_BLAST-Arrayseq-Sang.sh
