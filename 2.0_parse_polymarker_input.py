@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  parse_polymarker_input.py
-#  
-#  Copyright 2017 Junli Zhang <junli@debian>
-#  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
@@ -21,6 +17,7 @@
 #  MA 02110-1301, USA.
 #  
 #  
+
 """
 Parse polymarker input and output a fasta file for blast.
 
