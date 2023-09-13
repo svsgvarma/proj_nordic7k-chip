@@ -18,6 +18,6 @@
 #### Pars and merge all blast hits
 
 ```
-./2.2_parse_merge_blast-hits.py Nordic_Oat_SNP_sequences_AHA_230803.tsv /proj_nordic7k-chip/work/1.1_pars-BLAST/
+./2.2_parse_merge_blast-hits_get-pos.py Nordic_Oat_SNP_sequences_AHA_230803.tsv /proj_nordic7k-chip/work/1.1_pars-BLAST/
 
 ```
