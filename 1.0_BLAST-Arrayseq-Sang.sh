@@ -33,11 +33,11 @@ cd $outdir
 #query=${indir}"Nordic_Oat_SNP_sequences_AHA_230803_seq.fa"
 #outfl_1=${outdir}Nordic_Oat_SNP_sequences_AHA_230803_maxtar3_maxhsp1_eval1e05.tsv
 
-#query=${indir}"Nordic_Oat_SNP_sequences_AHA_230803_seq-up.fa"
-#outfl_1=${outdir}Nordic_Oat_SNP_sequences_AHA_230803_seq-up_maxtar3_maxhsp1_eval1e05.tsv
+query=${indir}"Nordic_Oat_SNP_sequences_AHA_230803_seq-up.fa"
+outfl_1=${outdir}Nordic_Oat_SNP_sequences_AHA_230803_seq-up_maxtar3_maxhsp1_eval1e05.tsv
 
-query=${indir}"Nordic_Oat_SNP_sequences_AHA_230803_seq-down.fa"
-outfl_1=${outdir}Nordic_Oat_SNP_sequences_AHA_230803_seq-down_maxtar3_maxhsp1_eval1e05.tsv
+#query=${indir}"Nordic_Oat_SNP_sequences_AHA_230803_seq-down.fa"
+#outfl_1=${outdir}Nordic_Oat_SNP_sequences_AHA_230803_seq-down_maxtar3_maxhsp1_eval1e05.tsv
 
 ########
 #-perc_identity 95.0
@@ -83,8 +83,8 @@ sequpTot blast hits: 12969
 # Cluster based on first unique column and cluster all other columns keeping first unique column
 
 #cat Nordic_Oat_SNP_sequences_AHA_230803_maxtar3_maxhsp3_eval1e05.tsv | awk ' !(a[$1]) {a[$1]=$0} a[$1] {w=$1; $1=""; a[w]=a[w] $0} END {for (i in a) print a[i]}' FS="\t" OFS=";" | awk '{split($12,a,";chr"); print $1"\tchr"a[2]"\tchr"a[3]"\tchr"a[4]}' FS="\t" OFS="\t" > Nordic_Oat_SNP_sequences_AHA_230803_clusters.tsv,
-#cat Nordic_Oat_SNP_sequences_AHA_230803_seq-down_maxtar3_maxhsp1_eval1e05.tsv | awk ' !(a[$1]) {a[$1]=$0} a[$1] {w=$1; $1=""; a[w]=a[w] $0} END {for (i in a) print a[i]}' FS="\t" OFS=";" | awk '{split($12,a,";chr"); print $1"\tchr"a[2]"\tchr"a[3]"\tchr"a[4]}' FS="\t" OFS="\t" > Nordic_Oat_SNP_sequences_AHA_230803_seq-down_clusters.tsv
 #cat Nordic_Oat_SNP_sequences_AHA_230803_seq-up_maxtar3_maxhsp1_eval1e05.tsv | awk ' !(a[$1]) {a[$1]=$0} a[$1] {w=$1; $1=""; a[w]=a[w] $0} END {for (i in a) print a[i]}' FS="\t" OFS=";" | awk '{split($12,a,";chr"); print $1"\tchr"a[2]"\tchr"a[3]"\tchr"a[4]}' FS="\t" OFS="\t" > Nordic_Oat_SNP_sequences_AHA_230803_seq-up_clusters.tsv
+#cat Nordic_Oat_SNP_sequences_AHA_230803_seq-down_maxtar3_maxhsp1_eval1e05.tsv | awk ' !(a[$1]) {a[$1]=$0} a[$1] {w=$1; $1=""; a[w]=a[w] $0} END {for (i in a) print a[i]}' FS="\t" OFS=";" | awk '{split($12,a,";chr"); print $1"\tchr"a[2]"\tchr"a[3]"\tchr"a[4]}' FS="\t" OFS="\t" > Nordic_Oat_SNP_sequences_AHA_230803_seq-down_clusters.tsv
 
 #####################
 

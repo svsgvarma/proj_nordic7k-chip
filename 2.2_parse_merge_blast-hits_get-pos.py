@@ -45,6 +45,20 @@ def main():
 			grepout = str("."+"\t"+empty_str+"\t"+empty_str+"\t"+empty_str)
 		return grepout
 
+	#####--Function to search 7K chip SNP data ---
+	def srchdb_7k(GName,FPATH):
+		try:
+			True
+			cmdFls1 = "grep -m 1 '"+str(GName)+"' "+str(FPATH)+""
+			cmdFls2 =  subprocess.check_output(cmdFls1, shell=True)
+			AnnoPars = cmdFls2.strip().decode().split("\t")
+			# 
+			grepout = str("\t".join(AnnoPars))
+		except:
+			False
+			grepout = str(".	.	.	.	.")
+		return grepout
+
 	#####
 	# write headers
 	expfile_line1 = open(workdir+polymarker_input,'r').readline().strip()
@@ -52,8 +66,10 @@ def main():
 	blastheader1=str(":(qseqid)")
 	blastheader2=str(":(sseqid;pident;length;mismatch;gapopen;qstart;qend;sstart;send;evalue;bitscore")
 	blastheader3=str(":(sseqid;pident;length)")
-	outall_header = str(expfile_line1+"	Sequence-UP(-50)	Sequence-Down(+50)	Full-seq-len(sequp;snppos;seqdown)	Crop50-seq-len(sequp50;snppos;seqdown50)	All-seq_BLAST-hit1"+blastheader3+"	All-seq_BLAST-hit2"+blastheader3+"	All-seq_BLAST-hit3"+blastheader3+"	Seq-up_BLAST-hit1"+blastheader3+"	Seq-up_BLAST-hit2"+blastheader3+"	Seq-up_BLAST-hit3"+blastheader3+"	Seq-down_BLAST-hit1"+blastheader3+"	Seq-down_BLAST-hit2"+blastheader3+"	Seq-down_BLAST-hit3"+blastheader3+"	CODE_IUPAC_all-seq_BLAST-hit1"+blastheader1+"	all-seq_BLAST-hit1"+blastheader2+"	all-seq_BLAST-hit2"+blastheader2+"	all-seq_BLAST-hit3"+blastheader2+"	CODE_IUPAC_seq-up_BLAST-hits"+blastheader1+"	seq-up_BLAST-hit1"+blastheader2+"	seq-up_BLAST-hit2"+blastheader2+"	seq-up_BLAST-hit3"+blastheader2+"	CODE_IUPAC_seq-down_BLAST-hits"+blastheader1+"	seq-down_BLAST-hit1"+blastheader2+"	seq-down_BLAST-hit2"+blastheader2+"	seq-down_BLAST-hit3"+blastheader2+""+"\n")
-	out.write(outall_header)
+	exact_pos_join_header=str("Exact_pos_single(>=100pid)	Exact_pos_multi(>=100pid)	Exact_pos_single(<100pid)	Exact_pos_multi(<100pid)")
+	sevenk_chip_header=str("SortOrder	CODE	Source	SNP_All	7K")
+	outall_header = str(expfile_line1+"	Sequence-UP(-50)	Sequence-Down(+50)	Full-seq-len(sequp;snppos;seqdown)	Crop50-seq-len(sequp50;snppos;seqdown50)	All-seq_BLAST-hit1"+blastheader3+"	All-seq_BLAST-hit2"+blastheader3+"	All-seq_BLAST-hit3"+blastheader3+"	Seq-up_BLAST-hit1"+blastheader3+"	Seq-up_BLAST-hit2"+blastheader3+"	Seq-up_BLAST-hit3"+blastheader3+"	Seq-down_BLAST-hit1"+blastheader3+"	Seq-down_BLAST-hit2"+blastheader3+"	Seq-down_BLAST-hit3"+blastheader3+"	CODE_IUPAC_all-seq_BLAST-hit1"+blastheader1+"	all-seq_BLAST-hit1"+blastheader2+"	all-seq_BLAST-hit2"+blastheader2+"	all-seq_BLAST-hit3"+blastheader2+"	CODE_IUPAC_seq-up_BLAST-hits"+blastheader1+"	seq-up_BLAST-hit1"+blastheader2+"	seq-up_BLAST-hit2"+blastheader2+"	seq-up_BLAST-hit3"+blastheader2+"	CODE_IUPAC_seq-down_BLAST-hits"+blastheader1+"	seq-down_BLAST-hit1"+blastheader2+"	seq-down_BLAST-hit2"+blastheader2+"	seq-down_BLAST-hit3"+blastheader2+"")
+	out.write(outall_header+"\t"+exact_pos_join_header+"\t"+sevenk_chip_header+"\n")
 
 	totchrmatch=0; totchrunmatch=0
 	# get blast hits position
@@ -75,16 +91,16 @@ def main():
 		seqdown = seq[pos+5:]
 		seqdown50 = seqdown[:50]
 
-
 		tol_seqlen = str(str(len(sequp))+";"+str(len(snp))+";"+str(len(seqdown)))
 		crp50_seqlen = str(str(len(sequp50))+";"+str(len(snp))+";"+str(len(seqdown50)))
 
 		##################
-
 		wdirblast= "/".join(workdir.split("/")[:-2])+"/1.0_annotate-BLAST/"
 		order_seqmatch_all = srchdb_blastout(str(lines_snpid), wdirblast+"Nordic_Oat_SNP_sequences_AHA_230803_clusters.tsv")
 		order_seqmatch_sequp = srchdb_blastout(str(lines_snpid), wdirblast+"Nordic_Oat_SNP_sequences_AHA_230803_seq-up_clusters.tsv")
 		order_seqmatch_seqdown = srchdb_blastout(str(lines_snpid), wdirblast+"Nordic_Oat_SNP_sequences_AHA_230803_seq-down_clusters.tsv")
+		#####
+		order_srchdb_7k = srchdb_7k(str(lines_snpid), wdirblast+"Nordic_Oat_SNP_N7K_AHA_230907.tsv")
 
 		#################
 		# take only first two fields from blast outfile6
@@ -120,9 +136,7 @@ def main():
 		###############
 		# filter and summarized 
 		#print(seqmatch_all_p2flds,seqmatch_sequp_p2flds,seqmatch_seqdown_p2flds)
-
-		squp_pos_ = seqmatch_sequp_flds.split("\t")[0].split(";")[7:9]
-
+		#squp_pos_ = seqmatch_sequp_flds.split("\t")[0].split(";")[7:9]
 
 		sqallchrlst =[]; sqallpidlst =[]; sqall_lenlst =[]; sqall_poslst=[]
 		for elms in seqmatch_all_flds.split("\t"):
@@ -147,7 +161,7 @@ def main():
 
 		#print(sqallchrlst[0],squpchrlst[0],sqdownchrlst[0])
 		#print(sqallpidlst[0],squppidlst[0],sqdownpidlst[0])
-		#########################################################
+		####################################################
 		"""
 		print("######################")
 		print("###-first-UP-DOWN-####")
@@ -165,7 +179,6 @@ def main():
 		print(squppidlst[2],sqdownpidlst[2])
 		print(squp_lenlst[2],sqdown_lenlst[2])
 		"""
-
 		#####################
 		# condition to replace no hits (.) to 0. 
 		# Example: "100, 90, ."
@@ -224,12 +237,9 @@ def main():
 
 		#######################
 		#print("###-UP-####")
-
 		# Function to UP check and index all list
 		def UP_allcond(up_pid_num, updown_chr, up_len_num):
-
 			Exp_100pid_50len_lst_fun=[]; Exp_100pid_Less50len_lst_fun=[]
-
 			for fstr in rmdot(updown_chr):
 				up_chr_cln_idx = index_string(updown_chr, fstr)
 				# check the pid is >100
@@ -246,16 +256,13 @@ def main():
 							squp_pos_idxlst = squp_poslst[up_chr_cln_idx[0]]
 							up_tol_seqlen = up_len_num[up_chr_cln_idx[0]]
 							Exp_100pid_Less50len_lst_fun.append(pos_exact_UP(squp_chr_idxlst, squp_pos_idxlst, up_tol_seqlen))
-
 			return Exp_100pid_50len_lst_fun,Exp_100pid_Less50len_lst_fun
 
 		#######################
 		#print("###-DOWN-####")
 		# Function to DoWN check and index all list
 		def DOWN_allcond(down_pid_num, updown_chr, down_len_num):
-
 			Exp_100pid_50len_lst_fun=[]; Exp_100pid_Less50len_lst_fun=[]
-
 			# Condition to check chr index	
 			for fstr in rmdot(updown_chr):
 				down_chr_cln_idx = index_string(updown_chr, fstr)
@@ -268,143 +275,183 @@ def main():
 						sqdown_pos_idxlst = sqdown_poslst[down_chr_cln_idx[0]]
 						down_tol_seqlen = down_len_num[down_chr_cln_idx[0]]
 						Exp_100pid_50len_lst_fun.append(pos_exact_DOWN(sqdown_chr_idxlst,sqdown_pos_idxlst, down_tol_seqlen))
-
 					elif ( Exp_100pid_50len_lst_fun == []):
 						if (down_len_num[down_chr_cln_idx[0]] < 50):
 							sqdown_chr_idxlst = updown_chr[down_chr_cln_idx[0]]
 							sqdown_pos_idxlst = sqdown_poslst[down_chr_cln_idx[0]]
 							down_tol_seqlen = down_len_num[down_chr_cln_idx[0]]
 							Exp_100pid_Less50len_lst_fun.append(pos_exact_DOWN(sqdown_chr_idxlst,sqdown_pos_idxlst, down_tol_seqlen))
-
 			return Exp_100pid_50len_lst_fun,Exp_100pid_Less50len_lst_fun
 		#######################
-		#print("###-UPDOWN-####")
-		# Function to UP-DoWN check and index all list
-		def UPDOWN_allcond(updown_pid_num, updown_chr, updown_len_num):
 
-			Exp_100pid_50len_lst_fun=[]; Exp_100pid_Less50len_lst_fun=[]
-
+		#######################
+		#print("###-UP-####")
+		# Function to UP check Less than 100 and index all list
+		def UP_allcond_Less100(up_pid_num, updown_chr, up_len_num):
+			Exp_Less100pid_50len_lst_fun=[]; Exp_Less100pid_Less50len_lst_fun=[]
+			for fstr in rmdot(updown_chr):
+				up_chr_cln_idx = index_string(updown_chr, fstr)
+				# check the pid is >100
+				if (up_pid_num[up_chr_cln_idx[0]] < 100 and up_pid_num[up_chr_cln_idx[0]] >= 95):
+				# check the length is >50
+					if (up_len_num[up_chr_cln_idx[0]] >= 50):
+						squp_chr_idxlst = updown_chr[up_chr_cln_idx[0]]
+						squp_pos_idxlst = squp_poslst[up_chr_cln_idx[0]]
+						up_tol_seqlen = up_len_num[up_chr_cln_idx[0]]
+						Exp_Less100pid_50len_lst_fun.append(pos_exact_UP(squp_chr_idxlst, squp_pos_idxlst, up_tol_seqlen))
+					elif ( Exp_Less100pid_50len_lst_fun == []):
+						if (up_len_num[up_chr_cln_idx[0]] < 50):
+							squp_chr_idxlst = updown_chr[up_chr_cln_idx[0]]
+							squp_pos_idxlst = squp_poslst[up_chr_cln_idx[0]]
+							up_tol_seqlen = up_len_num[up_chr_cln_idx[0]]
+							Exp_Less100pid_Less50len_lst_fun.append(pos_exact_UP(squp_chr_idxlst, squp_pos_idxlst, up_tol_seqlen))
+			return Exp_Less100pid_50len_lst_fun,Exp_Less100pid_Less50len_lst_fun
+		#######################
+		#print("###-DOWN-####")
+		# Function to DoWN check Less than 100 and index all list
+		def DOWN_allcond_Less100(down_pid_num, updown_chr, down_len_num):
+			Exp_Less100pid_50len_lst_fun=[]; Exp_Less100pid_Less50len_lst_fun=[]
 			# Condition to check chr index	
 			for fstr in rmdot(updown_chr):
-				updown_chr_cln_idx = index_string(updown_chr, fstr)
+				down_chr_cln_idx = index_string(updown_chr, fstr)
 				# check the pid is >100
-				#print(updown_pid_num[down_chr_cln_idx[0]])
-				if (updown_pid_num[updown_chr_cln_idx[0]] == 100):
+				#print(down_pid_num[down_chr_cln_idx[0]])
+				if (down_pid_num[down_chr_cln_idx[0]] < 100 and down_pid_num[down_chr_cln_idx[0]] > 95):
 					# check the length is >50
-					if (updown_len_num[updown_chr_cln_idx[0]] >= 50):
-						sqdown_chr_idxlst = updown_chr[updown_chr_cln_idx[0]]
-						sqdown_pos_idxlst = sqdown_poslst[updown_chr_cln_idx[0]]
-						down_tol_seqlen = updown_len_num[updown_chr_cln_idx[0]]
-						Exp_100pid_50len_lst_fun.append(pos_exact_DOWN(sqdown_chr_idxlst,sqdown_pos_idxlst, down_tol_seqlen))
-
-					elif ( Exp_100pid_50len_lst_fun == []):
-						if (updown_len_num[updown_chr_cln_idx[0]] < 50):
-							sqdown_chr_idxlst = updown_chr[updown_chr_cln_idx[0]]
-							sqdown_pos_idxlst = sqdown_poslst[updown_chr_cln_idx[0]]
-							down_tol_seqlen = updown_len_num[updown_chr_cln_idx[0]]
-							Exp_100pid_Less50len_lst_fun.append(pos_exact_DOWN(sqdown_chr_idxlst,sqdown_pos_idxlst, down_tol_seqlen))
-
-			return Exp_100pid_50len_lst_fun,Exp_100pid_Less50len_lst_fun
-
+					if (down_len_num[down_chr_cln_idx[0]] >= 50):
+						sqdown_chr_idxlst = updown_chr[down_chr_cln_idx[0]]
+						sqdown_pos_idxlst = sqdown_poslst[down_chr_cln_idx[0]]
+						down_tol_seqlen = down_len_num[down_chr_cln_idx[0]]
+						Exp_Less100pid_50len_lst_fun.append(pos_exact_DOWN(sqdown_chr_idxlst,sqdown_pos_idxlst, down_tol_seqlen))
+					elif ( Exp_Less100pid_50len_lst_fun == []):
+						if (down_len_num[down_chr_cln_idx[0]] < 50):
+							sqdown_chr_idxlst = updown_chr[down_chr_cln_idx[0]]
+							sqdown_pos_idxlst = sqdown_poslst[down_chr_cln_idx[0]]
+							down_tol_seqlen = down_len_num[down_chr_cln_idx[0]]
+							Exp_Less100pid_Less50len_lst_fun.append(pos_exact_DOWN(sqdown_chr_idxlst,sqdown_pos_idxlst, down_tol_seqlen))
+			return Exp_Less100pid_50len_lst_fun,Exp_Less100pid_Less50len_lst_fun
 
 		# Pid number
 		up_pid_num = replsdot(list([squppidlst[0],squppidlst[1],squppidlst[2]]),".","0.0")
 		down_pid_num = replsdot(list([sqdownpidlst[0],sqdownpidlst[1],sqdownpidlst[2]]),".","0.0")
-
 		# Pid number sum 
 		updown_pidsum = list([sumall100(up_pid_num), sumall100(down_pid_num)])
-
 		# Chr
 		updown_chr = [list([squpchrlst[0],squpchrlst[1],squpchrlst[2]]),list([sqdownchrlst[0],sqdownchrlst[1],sqdownchrlst[2]])]
 		updown_chr_join = [list([squpchrlst[0],squpchrlst[1],squpchrlst[2],sqdownchrlst[0],sqdownchrlst[1],sqdownchrlst[2]])]
-
-
 		# Length number
 		up_len_num = replsdot(list([squp_lenlst[0],squp_lenlst[1],squp_lenlst[2]]),".","0")
 		down_len_num = replsdot(list([sqdown_lenlst[0],sqdown_lenlst[1],sqdown_lenlst[2]]),".","0")
-
-		#print(up_len_num, down_len_num)
 		#######################################
-		Exp_100pid_50len_lst =[]; Exp_100pid_Less50len_lst =[]
-		Exp_Less100pid_50len_lst =[]; Exp_Less100pid_Less50len_lst =[];
-
+		Exact_pos_100 =[]; Exact_pos_Less100 =[]
 		########
+		"""
+		print("#######################")
+		print(up_pid_num,down_pid_num)
+		print("#### up  & down ")
+		print(updown_chr[0],updown_chr[1])
+		print(up_len_num, down_len_num)
+		"""
 		#Combinations with repetitions function
-		#x = [0, 1, 2, 3]
-		#for p in itertools.product(x, repeat=2):
-		#	print(p)
 		if ((updown_pidsum[0] == 0) and (updown_pidsum[1] == 0)):
 			True
 			#print("no hits: up 0 & down 0!")
-			#print(updown_pidsum)
-
-			print("#######################")
-			print(up_pid_num,down_pid_num)
-			print("#### up 0 & down 1")
-			print(updown_chr[0],updown_chr[1])
-			print(up_len_num, down_len_num)
-
-			up_pid_num_join = up_pid_num + down_pid_num
-			updown_chr_join = updown_chr[0] + updown_chr[1]
-			updown_len_num_join =  up_len_num + down_len_num
-			sqdown_poslst_join = squp_poslst + sqdown_poslst
-			print(up_pid_num_join, updown_chr_join, updown_len_num_join, sqdown_poslst_join)
-
-			"""
-			UP_allcond_lst = UP_allcond(up_pid_num, updown_chr[0], up_len_num)
-			DOWN_allcond_lst = DOWN_allcond(down_pid_num, updown_chr[1], down_len_num)
-			lfun_rmdups =list(set(UP_allcond_lst[0]) | set(DOWN_allcond_lst[0]))
-			print(lfun_rmdups)
-			"""
+			if((sum(up_pid_num) != 0) and (sum(down_pid_num) == 0)):
+				UP_allcond_lst = UP_allcond_Less100(up_pid_num, updown_chr[0], up_len_num)
+				Exact_pos_Less100.append(list(set(UP_allcond_lst[0]) | set(UP_allcond_lst[1])))
+			elif((sum(up_pid_num) == 0) and (sum(down_pid_num) != 0)):
+				DOWN_allcond_lst = DOWN_allcond_Less100(down_pid_num, updown_chr[1], down_len_num)
+				Exact_pos_Less100.append(list(set(DOWN_allcond_lst[0]) | set(DOWN_allcond_lst[1])))
+			elif((sum(up_pid_num) == 0) and (sum(down_pid_num) == 0)):
+				Exact_pos_Less100.append(["."])
+			else:
+				UP_allcond_Less100_lst = UP_allcond_Less100(up_pid_num, updown_chr[0], up_len_num)
+				DOWN_allcond_Less100_lst = DOWN_allcond_Less100(down_pid_num, updown_chr[1], down_len_num)
+				Exact_pos_Less100_50 = list(set(UP_allcond_Less100_lst[0]) | set(DOWN_allcond_Less100_lst[0]))
+				Exact_pos_Less100_L50 = list(set(UP_allcond_Less100_lst[1]) | set(DOWN_allcond_Less100_lst[1]))
+				if(Exact_pos_Less100_50 == []):
+					Exact_pos_Less100.append(Exact_pos_Less100_L50)
+				elif(Exact_pos_Less100_50 != []):
+					Exact_pos_Less100.append(Exact_pos_Less100_50)
 		elif ((updown_pidsum[0] == 0) and (updown_pidsum[1] == 1 or updown_pidsum[1] == 2 or updown_pidsum[1] == 3)):
 			True
-			"""
-			print("#######################")
-			print(up_pid_num,down_pid_num)
-			print("#### up 0 & down 1,2,3")
-			print(updown_chr[0],updown_chr[1])
-			print(up_len_num, down_len_num)
-			
 			# Condition to check chr index	
 			DOWN_allcond_lst = DOWN_allcond(down_pid_num, updown_chr[1], down_len_num)
-			"""
+			Exact_pos_100.append(list(set(DOWN_allcond_lst[0]) | set(DOWN_allcond_lst[1])))
+
 		elif ((updown_pidsum[0] == 1 or updown_pidsum[0] == 2 or updown_pidsum[0] == 3) and (updown_pidsum[1] == 0)):
 			True
-			#print("up 1,2,3 & down 0")
-			#print(updown_pidsum)
-			"""
-			print("#######################")
-			print(up_pid_num,down_pid_num)
-			print("#### up 2 & down 0")
-			print(updown_chr[0],updown_chr[1])
-			print(up_len_num, down_len_num)
-			
 			# Condition to check chr index
 			UP_allcond_lst = UP_allcond(up_pid_num, updown_chr[0], up_len_num)
-			
-			print(UP_allcond_lst)
-			"""
+			Exact_pos_100.append(list(set(UP_allcond_lst[0]) | set(UP_allcond_lst[1])))
+
 		elif ((updown_pidsum[0] == 1 or updown_pidsum[0] == 2 or updown_pidsum[0] == 3) and (updown_pidsum[1] == 1 or updown_pidsum[1] == 2 or updown_pidsum[1] == 3)):
 			True
-			#print("up 1,2,3 & down 1,2,3")
-			#print(updown_pidsum)
+			# Condition to check chr index
 			UP_allcond_lst = UP_allcond(up_pid_num, updown_chr[0], up_len_num)
 			DOWN_allcond_lst = DOWN_allcond(down_pid_num, updown_chr[1], down_len_num)
-			lfun_rmdups =list(set(UP_allcond_lst[0]) | set(DOWN_allcond_lst[0]))
-		else:
-			print(up_pid_num,down_pid_num)
-		##########################################################
 
-		totchrunmatch +=1
-			
+			UP_Exact_pos_100_50 = list(set(UP_allcond_lst[0]) | set(UP_allcond_lst[0]))
+			UP_Exact_pos_100_L50 = list(set(UP_allcond_lst[1]) | set(UP_allcond_lst[1]))
+			DOWN_Exact_pos_100_50 = list(set(DOWN_allcond_lst[0]) | set(DOWN_allcond_lst[0]))
+			DOWN_Exact_pos_100_L50 = list(set(DOWN_allcond_lst[1]) | set(DOWN_allcond_lst[1]))
+			#print(UP_Exact_pos_100_50, UP_Exact_pos_100_L50, DOWN_Exact_pos_100_50, DOWN_Exact_pos_100_L50)
+			#print(UP_allcond_lst, DOWN_allcond_lst )
+			if(UP_Exact_pos_100_50 == [] and DOWN_Exact_pos_100_50 == []):
+				Exact_pos_100.append(list(set(UP_Exact_pos_100_L50) | set(DOWN_Exact_pos_100_L50)))
+			elif(UP_Exact_pos_100_50 != [] and DOWN_Exact_pos_100_50 != []):
+				Exact_pos_100.append(list(set(UP_Exact_pos_100_50) | set(DOWN_Exact_pos_100_50)))
+			elif(UP_Exact_pos_100_50 != [] and DOWN_Exact_pos_100_50 == []):
+				Exact_pos_100.append(UP_Exact_pos_100_50)
+			elif(UP_Exact_pos_100_50 == [] and DOWN_Exact_pos_100_50 != []):
+				Exact_pos_100.append(DOWN_Exact_pos_100_50)
 		#################
-		#outall_results= str(lines_rmsps+"\t"+sequp50+"\t"+seqdown50+"\t"+tol_seqlen+"\t"+crp50_seqlen+"\t"+seqmatch_all_p2flds+"\t"+seqmatch_sequp_p2flds+"\t"+seqmatch_seqdown_p2flds+"\t"+order_seqmatch_all+"\t"+ order_seqmatch_sequp +"\t"+ order_seqmatch_seqdown+"\n")
+		Exact_pos_100_single = []; Exact_pos_100_multi =[]
+		Exact_pos_Less100_single = []; Exact_pos_Less100_multi =[]
+		#print(Exact_pos_100,Exact_pos_Less100)
+		#################
+		#print(Exact_pos_100, up_pid_num, down_pid_num,  up_len_num, down_len_num)
+		########-- 100 --########
+		if(Exact_pos_100 != []):
+			if(len(Exact_pos_100[0]) == 1):
+				Exact_pos_100_single.append(Exact_pos_100[0][0])
+			else:
+				Exact_pos_100_single.append(".")
+			###
+			if(len(Exact_pos_100[0]) > 1):
+				Exact_pos_100_multi.append(",".join(Exact_pos_100[0]))
+			else:
+				Exact_pos_100_multi.append(".")
+		else:
+			Exact_pos_100_single.append(".")
+			Exact_pos_100_multi.append(".")
+		#########-- Less100 --########
+		if(Exact_pos_Less100 != []):
+			if(len(Exact_pos_Less100[0]) == 1):
+				Exact_pos_Less100_single.append(Exact_pos_Less100[0][0])
+			else:
+				Exact_pos_Less100_single.append(".")
+			###
+			if(len(Exact_pos_Less100[0]) > 1):
+				Exact_pos_Less100_multi.append(",".join(Exact_pos_Less100[0]))
+			else:
+				Exact_pos_Less100_multi.append(".")
+		else:
+			Exact_pos_Less100_single.append(".")
+			Exact_pos_Less100_multi.append(".")
+		#################
+		All_Exact_pos_join = str(Exact_pos_100_single[0])+"\t"+str(Exact_pos_100_multi[0])+"\t"+str(Exact_pos_Less100_single[0])+"\t"+str(Exact_pos_Less100_multi[0])
+		#print(All_Exact_pos_join)
+		##########################################################
+		totchrunmatch +=1
+		#################
+		outall_results= str(lines_rmsps+"\t"+sequp50+"\t"+seqdown50+"\t"+tol_seqlen+"\t"+crp50_seqlen+"\t"+seqmatch_all_p2flds+"\t"+seqmatch_sequp_p2flds+"\t"+seqmatch_seqdown_p2flds+"\t"+order_seqmatch_all+"\t"+ order_seqmatch_sequp +"\t"+order_seqmatch_seqdown)
 		#################
 		# write output file
-		#out.write(outall_results)
+		out.write(outall_results+"\t"+All_Exact_pos_join+"\t"+order_srchdb_7k+"\n")
 	out.close()
-
-	print("total-no matched to chr:"+str(totchrmatch)+"\n"+"total-no un-match to chr:"+str(totchrunmatch))
+	#print("total-no matched to chr:"+str(totchrmatch)+"\n"+"total-no un-match to chr:"+str(totchrunmatch))
+	print("script done!")
 	return 0
 
 if __name__ == '__main__':
